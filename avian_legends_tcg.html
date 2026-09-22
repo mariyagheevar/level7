@@ -4,13 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Avian Legends - Trading Card Game</title>
-    <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;900&family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
-    
     <script>
         tailwind.config = {
             theme: {
@@ -23,17 +19,16 @@
                         gold: '#fbbf24',
                         amber: '#d97706',
                         darkBg: '#0b0f19',
-                        cardBg: '#111827',
+                        cardBg: '#111827'
                     }
                 }
             }
         }
     </script>
-
     <style>
         body {
             background-color: #0b0f19;
-            background-image: 
+            background-image:
                 radial-gradient(circle at 50% 0%, rgba(30, 58, 138, 0.3) 0%, transparent 70%),
                 radial-gradient(circle at 80% 80%, rgba(180, 83, 9, 0.15) 0%, transparent 50%);
             color: #f3f4f6;
@@ -60,27 +55,15 @@
             box-shadow: 0 20px 30px -10px rgba(0, 0, 0, 0.9), 0 0 20px rgba(251, 191, 36, 0.4);
         }
 
-        .border-common {
-            background: linear-gradient(135deg, #4b5563, #1f2937, #374151);
-            border: 2px solid #6b7280;
-        }
-        .border-rare {
-            background: linear-gradient(135deg, #1e40af, #1e1b4b, #2563eb);
-            border: 2px solid #60a5fa;
-        }
-        .border-epic {
-            background: linear-gradient(135deg, #6b21a8, #311042, #9333ea);
-            border: 2px solid #c084fc;
-        }
-        .border-legendary {
-            background: linear-gradient(135deg, #b45309, #451a03, #f59e0b, #d97706);
-            border: 2px solid #fef08a;
-        }
+        .border-common { background: linear-gradient(135deg, #4b5563, #1f2937, #374151); border: 2px solid #6b7280; }
+        .border-rare { background: linear-gradient(135deg, #1e40af, #1e1b4b, #2563eb); border: 2px solid #60a5fa; }
+        .border-epic { background: linear-gradient(135deg, #6b21a8, #311042, #9333ea); border: 2px solid #c084fc; }
+        .border-legendary { background: linear-gradient(135deg, #b45309, #451a03, #f59e0b, #d97706); border: 2px solid #fef08a; }
 
         .holo-foil::before {
             content: "";
             position: absolute;
-            top: 0; left: 0; right: 0; bottom: 0;
+            inset: 0;
             background: linear-gradient(
                 115deg,
                 transparent 20%,
@@ -97,10 +80,7 @@
             animation: holoShift 4s ease infinite alternate;
         }
 
-        @keyframes holoShift {
-            0% { background-position: 0% 0%; }
-            100% { background-position: 100% 100%; }
-        }
+        @keyframes holoShift { 0% { background-position: 0% 0%; } 100% { background-position: 100% 100%; } }
 
         .card-inner {
             background: #0f172a;
@@ -109,7 +89,7 @@
             display: flex;
             flex-direction: column;
             padding: 8px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255,255,255,0.1);
         }
 
         .card-art-frame {
@@ -129,52 +109,52 @@
             transition: transform 0.5s ease;
         }
 
-        .tcg-card:hover .card-art-frame img {
-            transform: scale(1.08);
-        }
+        .tcg-card:hover .card-art-frame img { transform: scale(1.08); }
 
-        ::-webkit-scrollbar {
-            width: 6px;
-        }
-        ::-webkit-scrollbar-track {
-            background: #0f172a;
-        }
-        ::-webkit-scrollbar-thumb {
-            background: #334155;
-            border-radius: 3px;
-        }
-        ::-webkit-scrollbar-thumb:hover {
-            background: #475569;
-        }
-
-        @keyframes attackPlayer {
-            0% { transform: translateY(0) scale(1); }
-            50% { transform: translateY(-30px) scale(1.1); }
-            100% { transform: translateY(0) scale(1); }
-        }
-        @keyframes attackAI {
-            0% { transform: translateY(0) scale(1); }
-            50% { transform: translateY(30px) scale(1.1); }
-            100% { transform: translateY(0) scale(1); }
-        }
-        .animate-attack-player { animation: attackPlayer 0.4s ease-in-out; }
-        .animate-attack-ai { animation: attackAI 0.4s ease-in-out; }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #0f172a; }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: #475569; }
 
         @keyframes shake {
             0%, 100% { transform: translateX(0); }
             20%, 60% { transform: translateX(-8px); }
             40%, 80% { transform: translateX(8px); }
         }
+
         .animate-hit { animation: shake 0.4s ease-in-out; }
+
+        .energy-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 999px;
+            display: inline-block;
+            background: rgba(148, 163, 184, 0.5);
+            box-shadow: inset 0 0 0 1px rgba(255,255,255,0.25);
+        }
+
+        .energy-dot.active {
+            background: linear-gradient(135deg, #fbbf24, #f59e0b);
+            box-shadow: 0 0 10px rgba(251,191,36,0.7);
+        }
+
+        .status-pill {
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 999px;
+            padding: 0.2rem 0.55rem;
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            background: rgba(15,23,42,0.8);
+        }
     </style>
 </head>
 <body class="flex flex-col min-h-screen">
-
     <header class="border-b border-slate-800 bg-slate-900/80 backdrop-blur sticky top-0 z-50 px-4 py-3">
         <div class="max-w-7xl mx-auto flex flex-wrap justify-between items-center gap-4">
             <div class="flex items-center space-x-3">
                 <div class="w-10 h-10 rounded-full bg-gradient-to-tr from-amber-500 to-yellow-300 flex items-center justify-center text-slate-950 font-bold text-xl shadow-lg shadow-amber-500/20">
-                    <i class="fa-solid font-bold fa-feather-pointed"></i>
+                    <i class="fa-solid fa-feather-pointed"></i>
                 </div>
                 <div>
                     <h1 class="font-cinzel text-xl font-bold tracking-wider text-amber-400">AVIAN LEGENDS</h1>
@@ -195,17 +175,13 @@
             </nav>
 
             <div class="flex items-center gap-3 bg-slate-950/80 px-3 py-1.5 rounded-lg border border-slate-800">
-                <div id="player-avatar-badge" class="w-8 h-8 rounded-full bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-amber-400 font-bold text-sm">
-                    P
-                </div>
+                <div id="player-avatar-badge" class="w-8 h-8 rounded-full bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-amber-400 font-bold text-sm">P</div>
                 <div>
                     <div class="flex items-center gap-2">
                         <span id="header-player-name" class="font-semibold text-sm text-slate-200">Player</span>
                         <span id="header-rank-badge" class="px-2 py-0.5 text-[10px] font-bold rounded bg-amber-500/20 text-amber-300 border border-amber-500/30 uppercase">BRONZE</span>
                     </div>
-                    <div class="text-xs text-slate-400">
-                        ELO: <span id="header-elo" class="text-amber-400 font-bold">1000</span> PTS
-                    </div>
+                    <div class="text-xs text-slate-400">ELO: <span id="header-elo" class="text-amber-400 font-bold">1000</span> PTS</div>
                 </div>
             </div>
         </div>
@@ -220,7 +196,7 @@
                     </div>
                     <div>
                         <h2 id="battle-title" class="font-cinzel text-lg font-bold text-white">Select Your Avian Champion</h2>
-                        <p id="battle-subtitle" class="text-xs text-slate-400">Choose a card from your deck below to enter the battle arena</p>
+                        <p id="battle-subtitle" class="text-xs text-slate-400">Choose a bird, manage energy, and outplay your rival.</p>
                     </div>
                 </div>
 
@@ -228,18 +204,21 @@
                     <button id="btn-start-battle" onclick="startBattle()" disabled class="px-6 py-2.5 rounded-xl font-bold text-slate-950 bg-gradient-to-r from-amber-400 to-yellow-500 hover:from-amber-300 hover:to-yellow-400 disabled:opacity-40 disabled:cursor-not-allowed shadow-lg shadow-amber-500/20 transition flex items-center gap-2">
                         <i class="fa-solid fa-bolt"></i> START BATTLE
                     </button>
-                    <button id="btn-reset-battle" onclick="resetBattleArena()" class="hidden px-4 py-2.5 rounded-xl font-semibold text-slate-300 bg-slate-800 hover:bg-slate-700 border border-slate-700 transition">
-                        New Match
-                    </button>
+                    <button id="btn-reset-battle" onclick="resetBattleArena()" class="hidden px-4 py-2.5 rounded-xl font-semibold text-slate-300 bg-slate-800 hover:bg-slate-700 border border-slate-700 transition">New Match</button>
                 </div>
+            </div>
+
+            <div class="flex flex-wrap gap-3 bg-slate-900/70 border border-slate-800 rounded-2xl p-3 text-xs text-slate-300">
+                <div class="status-pill">Round <span id="battle-round" class="text-amber-400 font-bold">1</span></div>
+                <div class="status-pill">Energy <span id="battle-energy" class="text-amber-400 font-bold">0</span></div>
+                <div class="status-pill">Shield <span id="battle-shield" class="text-cyan-400 font-bold">0</span></div>
+                <div class="status-pill">Combo <span id="battle-combo" class="text-emerald-400 font-bold">x1</span></div>
             </div>
 
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
                 <div class="lg:col-span-4 bg-slate-900/60 rounded-2xl p-4 border border-slate-800/80 flex flex-col items-center justify-between min-h-[420px] relative overflow-hidden">
                     <div class="w-full flex justify-between items-center border-b border-slate-800 pb-2">
-                        <span class="text-xs font-bold text-rose-400 uppercase tracking-widest flex items-center gap-1.5">
-                            <i class="fa-solid fa-robot"></i> AI Opponent
-                        </span>
+                        <span class="text-xs font-bold text-rose-400 uppercase tracking-widest flex items-center gap-1.5"><i class="fa-solid fa-robot"></i> AI Opponent</span>
                         <span id="ai-species-name" class="text-xs font-semibold text-slate-400">Rival Keeper</span>
                     </div>
 
@@ -263,31 +242,33 @@
 
                 <div class="lg:col-span-4 bg-slate-950/80 rounded-2xl p-4 border border-slate-800 flex flex-col min-h-[420px]">
                     <div class="border-b border-slate-800 pb-2 mb-3 flex justify-between items-center">
-                        <h3 class="font-cinzel text-xs font-bold uppercase tracking-wider text-amber-400 flex items-center gap-2">
-                            <i class="fa-solid fa-scroll"></i> Battle Combat Log
-                        </h3>
+                        <h3 class="font-cinzel text-xs font-bold uppercase tracking-wider text-amber-400 flex items-center gap-2"><i class="fa-solid fa-scroll"></i> Battle Combat Log</h3>
                         <span class="text-[10px] text-slate-500">Turn-based System</span>
                     </div>
 
                     <div id="combat-log" class="flex-1 bg-slate-900/80 rounded-xl p-3 border border-slate-800/60 overflow-y-auto font-mono text-xs space-y-2 max-h-[300px]">
-                        <div class="text-slate-500 italic">Welcome to the Avian Legends Arena! Select a bird from your card collection below and hit Start Battle.</div>
+                        <div class="text-slate-500 italic">Welcome to the Avian Legends Arena! Choose a bird, then manage your energy and tactics to win.</div>
                     </div>
 
                     <div id="combat-actions" class="mt-4 pt-3 border-t border-slate-800 grid grid-cols-2 gap-2 opacity-50 pointer-events-none">
                         <button onclick="executeTurn('attack')" class="p-2.5 rounded-xl bg-rose-500/20 hover:bg-rose-500/30 border border-rose-500/40 text-rose-300 text-xs font-bold transition flex items-center justify-center gap-2">
-                            <i class="fa-solid fa-sword"></i> Strike Attack
+                            <i class="fa-solid fa-sword"></i> Strike
                         </button>
                         <button onclick="executeTurn('defend')" class="p-2.5 rounded-xl bg-blue-500/20 hover:bg-blue-500/30 border border-blue-500/40 text-blue-300 text-xs font-bold transition flex items-center justify-center gap-2">
-                            <i class="fa-solid fa-shield"></i> Guard / Brace
+                            <i class="fa-solid fa-shield"></i> Guard
+                        </button>
+                        <button onclick="executeTurn('focus')" class="p-2.5 rounded-xl bg-emerald-500/20 hover:bg-emerald-500/30 border border-emerald-500/40 text-emerald-300 text-xs font-bold transition flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-bolt"></i> Focus
+                        </button>
+                        <button onclick="executeTurn('special')" class="p-2.5 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 border border-amber-500/40 text-amber-300 text-xs font-bold transition flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-star"></i> Special
                         </button>
                     </div>
                 </div>
 
                 <div class="lg:col-span-4 bg-slate-900/60 rounded-2xl p-4 border border-slate-800/80 flex flex-col items-center justify-between min-h-[420px]">
                     <div class="w-full flex justify-between items-center border-b border-slate-800 pb-2">
-                        <span class="text-xs font-bold text-amber-400 uppercase tracking-widest flex items-center gap-1.5">
-                            <i class="fa-solid fa-user-shield"></i> Your Champion
-                        </span>
+                        <span class="text-xs font-bold text-amber-400 uppercase tracking-widest flex items-center gap-1.5"><i class="fa-solid fa-user-shield"></i> Your Champion</span>
                         <span id="player-species-name" class="text-xs font-semibold text-slate-400">None Selected</span>
                     </div>
 
@@ -311,9 +292,7 @@
             </div>
 
             <div class="bg-slate-900/60 rounded-2xl p-5 border border-slate-800">
-                <h3 class="font-cinzel text-sm font-bold text-slate-300 uppercase tracking-wider mb-4 flex items-center gap-2">
-                    <i class="fa-solid fa-cards-blank text-amber-400"></i> Your Battle Deck (Select One)
-                </h3>
+                <h3 class="font-cinzel text-sm font-bold text-slate-300 uppercase tracking-wider mb-4 flex items-center gap-2"><i class="fa-solid fa-cards-blank text-amber-400"></i> Your Battle Deck (Select One)</h3>
                 <div id="deck-selection-grid" class="flex gap-4 overflow-x-auto pb-4 pt-2"></div>
             </div>
         </section>
@@ -347,17 +326,13 @@
                             <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Player Handle</label>
                             <div class="flex gap-2">
                                 <input type="text" id="input-player-name" class="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-4 py-2 text-sm text-slate-200 focus:outline-none focus:border-amber-500 transition" placeholder="Enter your handle">
-                                <button onclick="savePlayerName()" class="px-4 py-2 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold rounded-xl text-xs transition">
-                                    Save
-                                </button>
+                                <button onclick="savePlayerName()" class="px-4 py-2 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold rounded-xl text-xs transition">Save</button>
                             </div>
                         </div>
 
                         <div class="p-4 bg-slate-950/80 rounded-xl border border-slate-800/80 flex items-center justify-between">
                             <div class="flex items-center gap-3">
-                                <div id="profile-tier-icon" class="w-12 h-12 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400 text-2xl">
-                                    <i class="fa-solid fa-award"></i>
-                                </div>
+                                <div id="profile-tier-icon" class="w-12 h-12 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400 text-2xl"><i class="fa-solid fa-award"></i></div>
                                 <div>
                                     <div id="profile-tier-name" class="font-bold text-slate-200">Bronze Tier</div>
                                     <div class="text-xs text-slate-400"><span id="profile-elo-val" class="text-amber-400 font-bold">1000</span> Rating Points</div>
@@ -390,9 +365,7 @@
                     </div>
 
                     <div class="pt-4 border-t border-slate-800">
-                        <button onclick="confirmResetStats()" class="text-xs text-rose-400/80 hover:text-rose-400 font-semibold transition flex items-center gap-1.5">
-                            <i class="fa-solid fa-trash-can"></i> Reset Local Data & Progress
-                        </button>
+                        <button onclick="confirmResetStats()" class="text-xs text-rose-400/80 hover:text-rose-400 font-semibold transition flex items-center gap-1.5"><i class="fa-solid fa-trash-can"></i> Reset Local Data & Progress</button>
                     </div>
                 </div>
 
@@ -430,14 +403,14 @@
 
     <script>
         const CARDS_DB = [
-            { id: 'pigeon', name: 'City Pigeon', title: 'Urban Adapter', rarity: 'common', hp: 80, atk: 18, def: 12, element: 'Urban', conservation: 'Least Concern', fact: 'Can navigate using Earth magnetic fields and recognize human faces.', img: 'https://images.unsplash.com/photo-1555169062-013468b47731?w=500&auto=format&fit=crop&q=80', unlockedDefault: true },
-            { id: 'barn_owl', name: 'Barn Owl', title: 'Silent Hunter', rarity: 'common', hp: 90, atk: 22, def: 14, element: 'Night', conservation: 'Least Concern', fact: 'Heart-shaped facial disc channels quiet sound directly to pinpoint ears.', img: 'https://images.unsplash.com/photo-1574063413132-355dbfd83e0c?w=500&auto=format&fit=crop&q=80', unlockedDefault: true },
-            { id: 'blue_jay', name: 'Blue Jay', title: 'Forest Scout', rarity: 'rare', hp: 100, atk: 25, def: 18, element: 'Air', conservation: 'Least Concern', fact: 'Mimics hawk cries to warn others or trick competitors away from food.', img: 'https://images.unsplash.com/photo-1612021638820-22c6085a151b?w=500&auto=format&fit=crop&q=80', unlockedDefault: false },
-            { id: 'peregrine', name: 'Peregrine Falcon', title: 'Velocity Sovereign', rarity: 'rare', hp: 110, atk: 32, def: 15, element: 'Speed', conservation: 'Least Concern', fact: 'Fastest animal on Earth, reaching stoop diving speeds over 200 mph.', img: 'https://images.unsplash.com/photo-1611095973763-414019e72400?w=500&auto=format&fit=crop&q=80', unlockedDefault: false },
-            { id: 'golden_eagle', name: 'Golden Eagle', title: 'Apex Predator', rarity: 'epic', hp: 130, atk: 36, def: 22, element: 'Mountain', conservation: 'Protected', fact: 'Possesses powerful talons capable of exerting up to 400 psi pressure.', img: 'https://images.unsplash.com/photo-1611689342806-0863700ce1e4?w=500&auto=format&fit=crop&q=80', unlockedDefault: false },
-            { id: 'snowy_owl', name: 'Snowy Owl', title: 'Tundra Phantom', rarity: 'epic', hp: 125, atk: 30, def: 28, element: 'Frost', conservation: 'Vulnerable', fact: 'Thick plumage insulates body down to -50°C in Arctic conditions.', img: 'https://images.unsplash.com/photo-1520808663317-647b476a81b9?w=500&auto=format&fit=crop&q=80', unlockedDefault: false },
-            { id: 'kakapo', name: 'Kakapo Owl-Parrot', title: 'Ancient Guardian', rarity: 'legendary', hp: 150, atk: 28, def: 38, element: 'Forest', conservation: 'Critically Endangered', fact: 'Flightless nocturnal parrot of NZ. Fewer than 250 individuals remain.', img: 'https://images.unsplash.com/photo-1552728089-57bdde30beb3?w=500&auto=format&fit=crop&q=80', unlockedDefault: false },
-            { id: 'condor', name: 'California Condor', title: 'Sky Titan', rarity: 'legendary', hp: 160, atk: 40, def: 30, element: 'Solar', conservation: 'Critically Endangered', fact: 'Wingspan up to 9.5 feet. Saved from extinction through dedicated breeding.', img: 'https://images.unsplash.com/photo-1506551109886-6101f48c1ab9?w=500&auto=format&fit=crop&q=80', unlockedDefault: false }
+            { id: 'pigeon', name: 'City Pigeon', title: 'Urban Adapter', rarity: 'common', hp: 80, atk: 18, def: 12, element: 'Urban', conservation: 'Least Concern', fact: 'Can navigate using Earth magnetic fields and recognize human faces.', img: 'https://images.unsplash.com/photo-1555169062-013468b47731?w=500&auto=format&fit=crop&q=80', unlockedDefault: true, special: 'Urban Rush', specialText: 'Deals +8 bonus damage and grants +1 energy.' },
+            { id: 'barn_owl', name: 'Barn Owl', title: 'Silent Hunter', rarity: 'common', hp: 90, atk: 22, def: 14, element: 'Night', conservation: 'Least Concern', fact: 'Heart-shaped facial disc channels quiet sound directly to pinpoint ears.', img: 'https://images.unsplash.com/photo-1574063413132-355dbfd83e0c?w=500&auto=format&fit=crop&q=80', unlockedDefault: true, special: 'Moon Glide', specialText: 'Gain 8 shield and heal 6 HP.' },
+            { id: 'blue_jay', name: 'Blue Jay', title: 'Forest Scout', rarity: 'rare', hp: 100, atk: 25, def: 18, element: 'Air', conservation: 'Least Concern', fact: 'Mimics hawk cries to warn others or trick competitors away from food.', img: 'https://images.unsplash.com/photo-1612021638820-22c6085a151b?w=500&auto=format&fit=crop&q=80', unlockedDefault: false, special: 'Skycall', specialText: '+12 damage and +1 combo multiplier.' },
+            { id: 'peregrine', name: 'Peregrine Falcon', title: 'Velocity Sovereign', rarity: 'rare', hp: 110, atk: 32, def: 15, element: 'Speed', conservation: 'Least Concern', fact: 'Fastest animal on Earth, reaching stoop diving speeds over 200 mph.', img: 'https://images.unsplash.com/photo-1611095973763-414019e72400?w=500&auto=format&fit=crop&q=80', unlockedDefault: false, special: 'Dive Bomb', specialText: 'High damage burst with extra critical chance.' },
+            { id: 'golden_eagle', name: 'Golden Eagle', title: 'Apex Predator', rarity: 'epic', hp: 130, atk: 36, def: 22, element: 'Mountain', conservation: 'Protected', fact: 'Possesses powerful talons capable of exerting up to 400 psi pressure.', img: 'https://images.unsplash.com/photo-1611689342806-0863700ce1e4?w=500&auto=format&fit=crop&q=80', unlockedDefault: false, special: 'Sky Breaker', specialText: 'Massive damage, reduced by enemy guard.' },
+            { id: 'snowy_owl', name: 'Snowy Owl', title: 'Tundra Phantom', rarity: 'epic', hp: 125, atk: 30, def: 28, element: 'Frost', conservation: 'Vulnerable', fact: 'Thick plumage insulates body down to -50°C in Arctic conditions.', img: 'https://images.unsplash.com/photo-1520808663317-647b476a81b9?w=500&auto=format&fit=crop&q=80', unlockedDefault: false, special: 'Frost Guard', specialText: 'Gain shield, then slow enemy attacks.' },
+            { id: 'kakapo', name: 'Kakapo Owl-Parrot', title: 'Ancient Guardian', rarity: 'legendary', hp: 150, atk: 28, def: 38, element: 'Forest', conservation: 'Critically Endangered', fact: 'Flightless nocturnal parrot of NZ. Fewer than 250 individuals remain.', img: 'https://images.unsplash.com/photo-1552728089-57bdde30beb3?w=500&auto=format&fit=crop&q=80', unlockedDefault: false, special: 'Ancient Bloom', specialText: 'Recover HP and create a guard barrier.' },
+            { id: 'condor', name: 'California Condor', title: 'Sky Titan', rarity: 'legendary', hp: 160, atk: 40, def: 30, element: 'Solar', conservation: 'Critically Endangered', fact: 'Wingspan up to 9.5 feet. Saved from extinction through dedicated breeding.', img: 'https://images.unsplash.com/photo-1506551109886-6101f48c1ab9?w=500&auto=format&fit=crop&q=80', unlockedDefault: false, special: 'Sunfall', specialText: 'Huge burst damage with a massive shield break.' }
         ];
 
         const SIMULATED_LEADERBOARD = [
@@ -463,7 +436,15 @@
             aiCard: null,
             playerCurrentHp: 0,
             aiCurrentHp: 0,
-            isPlayerTurn: true
+            isPlayerTurn: true,
+            round: 1,
+            energy: 0,
+            playerShield: 0,
+            aiShield: 0,
+            combo: 1,
+            playerStatus: null,
+            aiStatus: null,
+            pendingAiTimer: null
         };
 
         function loadPlayerData() {
@@ -471,7 +452,7 @@
             if (saved) {
                 try {
                     playerProfile = { ...playerProfile, ...JSON.parse(saved) };
-                } catch(e) { console.error("Error loading profile", e); }
+                } catch (e) { console.error('Error loading profile', e); }
             }
             updateProfileUI();
         }
@@ -490,12 +471,22 @@
             return { title: 'Bronze', color: 'text-amber-600 border-amber-700/40 bg-amber-700/20' };
         }
 
+        function clamp(value, min, max) {
+            return Math.max(min, Math.min(max, value));
+        }
+
+        function updateBattleHud() {
+            const energyDots = Array.from({ length: 3 }, (_, i) => `<span class="energy-dot ${i < battleState.energy ? 'active' : ''}"></span>`).join('');
+            document.getElementById('battle-round').textContent = battleState.round;
+            document.getElementById('battle-energy').innerHTML = energyDots;
+            document.getElementById('battle-shield').textContent = battleState.playerShield;
+            document.getElementById('battle-combo').textContent = `x${battleState.combo}`;
+        }
+
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
         function playSound(type) {
-            if (audioCtx.state === 'suspended') {
-                audioCtx.resume();
-            }
+            if (audioCtx.state === 'suspended') audioCtx.resume();
             const osc = audioCtx.createOscillator();
             const gain = audioCtx.createGain();
             osc.connect(gain);
@@ -588,7 +579,9 @@
                 btn.classList.remove('text-amber-400', 'bg-slate-800');
                 btn.classList.add('text-slate-400');
             });
-            document.getElementById(`view-${tabId}`).classList.remove('hidden');
+
+            const target = document.getElementById(`view-${tabId}`);
+            target.classList.remove('hidden');
             const activeBtn = document.getElementById(`tab-${tabId}`);
             activeBtn.classList.add('text-amber-400', 'bg-slate-800');
             activeBtn.classList.remove('text-slate-400');
@@ -629,10 +622,10 @@
         }
 
         function confirmResetStats() {
-            if (confirm("Are you sure you want to reset your local stats, Elo rank, and card unlocks?")) {
+            if (confirm('Are you sure you want to reset your local stats, Elo rank, and card unlocks?')) {
                 localStorage.removeItem('avian_legends_profile');
                 playerProfile = {
-                    name: "Keeper " + Math.floor(1000 + Math.random() * 9000),
+                    name: 'Keeper ' + Math.floor(1000 + Math.random() * 9000),
                     elo: 1000,
                     wins: 0,
                     losses: 0,
@@ -650,12 +643,11 @@
 
             CARDS_DB.forEach(card => {
                 const isUnlocked = playerProfile.unlockedCards.includes(card.id);
-                if (isUnlocked) {
-                    const isSelected = battleState.playerCard && battleState.playerCard.id === card.id;
-                    const cardEl = createCardElement(card, false, isSelected);
-                    cardEl.onclick = () => selectPlayerCard(card);
-                    container.appendChild(cardEl);
-                }
+                if (!isUnlocked) return;
+                const isSelected = battleState.playerCard && battleState.playerCard.id === card.id;
+                const cardEl = createCardElement(card, false, isSelected);
+                cardEl.onclick = () => selectPlayerCard(card);
+                container.appendChild(cardEl);
             });
         }
 
@@ -671,7 +663,6 @@
             document.getElementById('player-species-name').textContent = card.name;
             document.getElementById('player-hp-text').textContent = `${card.hp} / ${card.hp}`;
             document.getElementById('player-hp-bar').style.width = '100%';
-
             renderDeckSelection();
             document.getElementById('btn-start-battle').disabled = false;
             logCombat(`Selected <strong>${card.name}</strong> as your battle champion.`);
@@ -687,6 +678,14 @@
             battleState.aiCurrentHp = battleState.aiCard.hp;
             battleState.active = true;
             battleState.isPlayerTurn = true;
+            battleState.round = 1;
+            battleState.energy = 1;
+            battleState.playerShield = 0;
+            battleState.aiShield = 0;
+            battleState.combo = 1;
+            battleState.playerStatus = null;
+            battleState.aiStatus = null;
+            updateBattleHud();
 
             const aiSlot = document.getElementById('ai-card-slot');
             aiSlot.innerHTML = '';
@@ -699,18 +698,93 @@
             document.getElementById('btn-start-battle').classList.add('hidden');
             document.getElementById('btn-reset-battle').classList.remove('hidden');
             document.getElementById('combat-actions').classList.remove('opacity-50', 'pointer-events-none');
-
             logCombat(`<span class="text-amber-400 font-bold">BATTLE STARTED!</span> ${battleState.playerCard.name} VS ${battleState.aiCard.name}`);
         }
 
-        function executeTurn(action) {
+        function getActionDamage(baseDamage, action, source, target) {
+            let damage = baseDamage;
+            if (action === 'attack') damage += 6;
+            if (action === 'defend') damage = Math.floor(damage * 0.5);
+            if (action === 'focus') damage = 0;
+            if (action === 'special') damage += 14 + (source.rarity === 'legendary' ? 8 : source.rarity === 'epic' ? 5 : 2);
+            if (target && target.rarity === 'legendary' && action === 'special') damage -= 4;
+            return Math.max(0, damage);
+        }
+
+        function spendEnergy(cost) {
+            if (battleState.energy < cost) return false;
+            battleState.energy -= cost;
+            updateBattleHud();
+            return true;
+        }
+
+        function handleShieldBreak(target, damage) {
+            if (target === 'player') {
+                if (battleState.playerShield > 0) {
+                    const absorb = Math.min(battleState.playerShield, damage);
+                    battleState.playerShield -= absorb;
+                    damage -= absorb;
+                    if (damage < 0) damage = 0;
+                }
+                return damage;
+            }
+            if (battleState.aiShield > 0) {
+                const absorb = Math.min(battleState.aiShield, damage);
+                battleState.aiShield -= absorb;
+                damage -= absorb;
+                if (damage < 0) damage = 0;
+            }
+            return damage;
+        }
+
+        function applyPlayerTurn(action) {
             if (!battleState.active || !battleState.isPlayerTurn) return;
 
-            let pDamage = Math.max(5, battleState.playerCard.atk - Math.floor(battleState.aiCard.def / 2));
-            if (action === 'defend') pDamage = Math.floor(pDamage * 0.5);
+            let damage = 0;
+            let logText = '';
 
-            battleState.aiCurrentHp = Math.max(0, battleState.aiCurrentHp - pDamage);
-            playSound(action === 'attack' ? 'attack' : 'defend');
+            if (action === 'attack') {
+                if (!spendEnergy(1)) {
+                    logCombat('<span class="text-amber-400 font-bold">Not enough energy for a strike.</span>');
+                    return;
+                }
+                damage = getActionDamage(Math.max(5, battleState.playerCard.atk - Math.floor(battleState.aiCard.def / 2)), 'attack', battleState.playerCard, battleState.aiCard);
+                battleState.aiCurrentHp = Math.max(0, battleState.aiCurrentHp - handleShieldBreak('ai', damage));
+                battleState.combo = clamp(battleState.combo + 1, 1, 5);
+                logText = `Your <strong>${battleState.playerCard.name}</strong> used <span class="text-rose-400 font-bold">STRIKE</span> for ${damage} DMG.`;
+                playSound('attack');
+            }
+
+            if (action === 'defend') {
+                battleState.playerShield += 8 + Math.floor(battleState.playerCard.def / 3);
+                battleState.energy = clamp(battleState.energy + 1, 0, 3);
+                battleState.combo = 1;
+                logText = `Your <strong>${battleState.playerCard.name}</strong> braced and gained <span class="text-cyan-400 font-bold">${battleState.playerShield} shield</span>.`;
+                playSound('defend');
+            }
+
+            if (action === 'focus') {
+                battleState.energy = clamp(battleState.energy + 2, 0, 3);
+                battleState.playerCurrentHp = clamp(battleState.playerCurrentHp + 10, 0, battleState.playerCard.hp);
+                battleState.combo = clamp(battleState.combo + 1, 1, 5);
+                logText = `Your <strong>${battleState.playerCard.name}</strong> focused and recovered <span class="text-emerald-400 font-bold">10 HP</span> while refilling energy.`;
+                playSound('click');
+            }
+
+            if (action === 'special') {
+                if (!spendEnergy(2)) {
+                    logCombat('<span class="text-amber-400 font-bold">You need 2 energy for a special move.</span>');
+                    return;
+                }
+                const bonus = battleState.playerCard.rarity === 'legendary' ? 16 : battleState.playerCard.rarity === 'epic' ? 12 : 8;
+                const crit = Math.random() < 0.2 ? 1.35 : 1;
+                damage = Math.max(10, battleState.playerCard.atk + bonus) * crit;
+                damage = Math.max(0, Math.round(damage - battleState.aiCard.def * 0.25));
+                battleState.aiCurrentHp = Math.max(0, battleState.aiCurrentHp - handleShieldBreak('ai', damage));
+                battleState.combo = clamp(battleState.combo + 2, 1, 6);
+                logText = `Your <strong>${battleState.playerCard.name}</strong> used <span class="text-amber-400 font-bold">${battleState.playerCard.special || 'SPECIAL'}</span> for ${damage} DMG.`;
+                playSound('attack');
+            }
 
             const aiSlot = document.getElementById('ai-card-slot');
             aiSlot.classList.add('animate-hit');
@@ -719,8 +793,8 @@
             const aiHpPct = Math.round((battleState.aiCurrentHp / battleState.aiCard.hp) * 100);
             document.getElementById('ai-hp-bar').style.width = `${aiHpPct}%`;
             document.getElementById('ai-hp-text').textContent = `${battleState.aiCurrentHp} / ${battleState.aiCard.hp}`;
-
-            logCombat(`Your <strong>${battleState.playerCard.name}</strong> used ${action.toUpperCase()} dealing <span class="text-rose-400 font-bold">${pDamage} DMG</span>!`);
+            updateBattleHud();
+            logCombat(logText);
 
             if (battleState.aiCurrentHp <= 0) {
                 endMatch(true);
@@ -729,16 +803,50 @@
 
             battleState.isPlayerTurn = false;
             document.getElementById('combat-actions').classList.add('opacity-50', 'pointer-events-none');
-            setTimeout(executeAiTurn, 1000);
+            updateBattleHud();
+            setTimeout(executeAiTurn, 900);
+        }
+
+        function executeTurn(action) {
+            applyPlayerTurn(action);
         }
 
         function executeAiTurn() {
             if (!battleState.active) return;
 
-            let aiDamage = Math.max(5, battleState.aiCard.atk - Math.floor(battleState.playerCard.def / 2));
-            battleState.playerCurrentHp = Math.max(0, battleState.playerCurrentHp - aiDamage);
+            let aiAction = 'attack';
+            if (battleState.aiCurrentHp < battleState.aiCard.hp * 0.6 && Math.random() > 0.4) aiAction = 'defend';
+            if (battleState.aiCard.atk > 30 && battleState.energy >= 2 && Math.random() > 0.5) aiAction = 'special';
+            if (battleState.aiShield <= 0 && Math.random() > 0.7) aiAction = 'focus';
 
-            playSound('attack');
+            let aiDamage = 0;
+            let aiLog = '';
+
+            if (aiAction === 'attack') {
+                aiDamage = Math.max(6, battleState.aiCard.atk - Math.floor(battleState.playerCard.def / 2));
+                battleState.playerCurrentHp = Math.max(0, battleState.playerCurrentHp - handleShieldBreak('player', aiDamage));
+                aiLog = `AI's <strong>${battleState.aiCard.name}</strong> struck for <span class="text-rose-400 font-bold">${aiDamage} DMG</span>!`;
+                playSound('attack');
+            }
+
+            if (aiAction === 'defend') {
+                battleState.aiShield += 10 + Math.floor(battleState.aiCard.def / 2);
+                aiLog = `AI's <strong>${battleState.aiCard.name}</strong> raised a guard and gained <span class="text-cyan-400 font-bold">${battleState.aiShield} shield</span>.`;
+                playSound('defend');
+            }
+
+            if (aiAction === 'focus') {
+                battleState.aiCurrentHp = clamp(battleState.aiCurrentHp + 12, 0, battleState.aiCard.hp);
+                aiLog = `AI's <strong>${battleState.aiCard.name}</strong> recovered <span class="text-emerald-400 font-bold">12 HP</span> and steadied itself.`;
+                playSound('click');
+            }
+
+            if (aiAction === 'special') {
+                aiDamage = Math.max(12, battleState.aiCard.atk + 14);
+                battleState.playerCurrentHp = Math.max(0, battleState.playerCurrentHp - handleShieldBreak('player', aiDamage));
+                aiLog = `AI's <strong>${battleState.aiCard.name}</strong> unleashed <span class="text-amber-400 font-bold">${battleState.aiCard.special || 'SPECIAL'}</span> for ${aiDamage} DMG!`;
+                playSound('attack');
+            }
 
             const playerSlot = document.getElementById('player-card-slot');
             playerSlot.classList.add('animate-hit');
@@ -747,8 +855,10 @@
             const playerHpPct = Math.round((battleState.playerCurrentHp / battleState.playerCard.hp) * 100);
             document.getElementById('player-hp-bar').style.width = `${playerHpPct}%`;
             document.getElementById('player-hp-text').textContent = `${battleState.playerCurrentHp} / ${battleState.playerCard.hp}`;
-
-            logCombat(`AI's <strong>${battleState.aiCard.name}</strong> retaliated for <span class="text-rose-400 font-bold">${aiDamage} DMG</span>!`);
+            battleState.energy = clamp(battleState.energy + 1, 0, 3);
+            battleState.round += 1;
+            updateBattleHud();
+            logCombat(aiLog);
 
             if (battleState.playerCurrentHp <= 0) {
                 endMatch(false);
@@ -762,7 +872,6 @@
         function endMatch(playerWon) {
             battleState.active = false;
             document.getElementById('combat-actions').classList.add('opacity-50', 'pointer-events-none');
-
             playerProfile.games += 1;
 
             if (playerWon) {
@@ -771,7 +880,7 @@
                 playerProfile.elo += 25;
 
                 let newlyUnlocked = null;
-                for (let card of CARDS_DB) {
+                for (const card of CARDS_DB) {
                     if (!playerProfile.unlockedCards.includes(card.id)) {
                         playerProfile.unlockedCards.push(card.id);
                         newlyUnlocked = card;
@@ -779,7 +888,7 @@
                     }
                 }
 
-                let msg = `<span class="text-emerald-400 font-bold">VICTORY!</span> You earned +25 Rank Points!`;
+                let msg = '<span class="text-emerald-400 font-bold">VICTORY!</span> You earned +25 Rank Points!';
                 if (newlyUnlocked) {
                     msg += ` <br><span class="text-amber-400 font-bold">UNLOCKED NEW CARD: ${newlyUnlocked.name}!</span> Check Codex!`;
                 }
@@ -788,7 +897,7 @@
                 playSound('defeat');
                 playerProfile.losses += 1;
                 playerProfile.elo = Math.max(800, playerProfile.elo - 10);
-                logCombat(`<span class="text-rose-400 font-bold">DEFEAT!</span> You lost -10 Rank Points.`);
+                logCombat('<span class="text-rose-400 font-bold">DEFEAT!</span> You lost -10 Rank Points.');
             }
 
             savePlayerData();
@@ -798,6 +907,16 @@
             battleState.active = false;
             battleState.playerCard = null;
             battleState.aiCard = null;
+            battleState.round = 1;
+            battleState.energy = 0;
+            battleState.playerShield = 0;
+            battleState.aiShield = 0;
+            battleState.combo = 1;
+            battleState.isPlayerTurn = true;
+            battleState.playerStatus = null;
+            battleState.aiStatus = null;
+            clearTimeout(battleState.pendingAiTimer);
+            updateBattleHud();
 
             document.getElementById('player-card-slot').innerHTML = `
                 <div class="w-52 h-80 rounded-2xl border-2 border-dashed border-slate-800 flex flex-col items-center justify-center text-slate-600 gap-2">
@@ -812,19 +931,18 @@
                 </div>
             `;
 
-            document.getElementById('player-species-name').textContent = "None Selected";
-            document.getElementById('ai-species-name').textContent = "Rival Keeper";
+            document.getElementById('player-species-name').textContent = 'None Selected';
+            document.getElementById('ai-species-name').textContent = 'Rival Keeper';
             document.getElementById('btn-start-battle').classList.remove('hidden');
             document.getElementById('btn-start-battle').disabled = true;
             document.getElementById('btn-reset-battle').classList.add('hidden');
-
             renderDeckSelection();
         }
 
         function logCombat(text) {
             const logBox = document.getElementById('combat-log');
             const entry = document.createElement('div');
-            entry.className = "border-b border-slate-800/50 pb-1 text-slate-300";
+            entry.className = 'border-b border-slate-800/50 pb-1 text-slate-300';
             entry.innerHTML = `<span class="text-slate-500 text-[10px]">[Turn]</span> ${text}`;
             logBox.appendChild(entry);
             logBox.scrollTop = logBox.scrollHeight;
@@ -833,8 +951,8 @@
         function renderCodex() {
             const grid = document.getElementById('codex-card-grid');
             grid.innerHTML = '';
-
             let unlockedCount = 0;
+
             CARDS_DB.forEach(card => {
                 const isUnlocked = playerProfile.unlockedCards.includes(card.id);
                 if (isUnlocked) unlockedCount++;
@@ -854,16 +972,22 @@
             const currentTier = getRankTier(playerProfile.elo);
             const allEntries = [
                 ...SIMULATED_LEADERBOARD,
-                { name: `${playerProfile.name} (You)`, rank: currentTier.title, elo: playerProfile.elo, wins: playerProfile.wins, losses: playerProfile.losses, isPlayer: true }
+                {
+                    name: `${playerProfile.name} (You)`,
+                    rank: currentTier.title,
+                    elo: playerProfile.elo,
+                    wins: playerProfile.wins,
+                    losses: playerProfile.losses,
+                    isPlayer: true
+                }
             ];
 
             allEntries.sort((a, b) => b.elo - a.elo);
 
             allEntries.forEach((entry, idx) => {
                 const tr = document.createElement('tr');
-                tr.className = entry.isPlayer ? "bg-amber-500/10 font-bold border-l-2 border-amber-400" : "hover:bg-slate-800/30";
+                tr.className = entry.isPlayer ? 'bg-amber-500/10 font-bold border-l-2 border-amber-400' : 'hover:bg-slate-800/30';
                 const rankTier = getRankTier(entry.elo);
-
                 tr.innerHTML = `
                     <td class="py-3 px-2 text-slate-400 font-mono">#${idx + 1}</td>
                     <td class="py-3 px-2 flex items-center gap-2"><span class="text-slate-200">${entry.name}</span></td>
@@ -877,6 +1001,7 @@
 
         window.onload = function() {
             loadPlayerData();
+            updateBattleHud();
             switchTab('arena');
         };
     </script>
