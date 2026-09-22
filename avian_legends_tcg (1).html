@@ -1,0 +1,1275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Avian Legends TCG</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #0b0f19;
+            color: #f1f5f9;
+            overflow-x: hidden;
+            user-select: none;
+        }
+
+        .font-cinzel {
+            font-family: 'Cinzel', serif;
+        }
+
+        /* Card Holographic Foil & 3D Tilt */
+        .card-container {
+            perspective: 1000px;
+        }
+
+        .card-inner {
+            transition: transform 0.15s ease-out, box-shadow 0.2s ease;
+            transform-style: preserve-3d;
+            position: relative;
+        }
+
+        .card-inner:hover {
+            box-shadow: 0 15px 35px rgba(0,0,0,0.6), 0 0 20px rgba(234, 179, 8, 0.4);
+        }
+
+        .foil-overlay {
+            background: linear-gradient(
+                125deg, 
+                rgba(255,255,255,0) 0%, 
+                rgba(255,255,255,0.05) 25%, 
+                rgba(255, 230, 0, 0.25) 45%, 
+                rgba(0, 255, 204, 0.25) 55%, 
+                rgba(255,255,255,0) 80%
+            );
+            background-size: 200% 200%;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+            mix-blend-mode: color-dodge;
+        }
+
+        /* Glassmorphism UI Panels */
+        .glass-panel {
+            background: rgba(15, 23, 42, 0.75);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .glass-card {
+            background: rgba(30, 41, 59, 0.6);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        /* Rarity Borders */
+        .border-critically-endangered { border-color: #ef4444; box-shadow: 0 0 15px rgba(239, 68, 68, 0.3); }
+        .border-endangered { border-color: #f97316; box-shadow: 0 0 15px rgba(249, 115, 22, 0.3); }
+        .border-rare { border-color: #a855f7; box-shadow: 0 0 15px rgba(168, 85, 247, 0.3); }
+        .border-uncommon { border-color: #3b82f6; box-shadow: 0 0 15px rgba(59, 130, 246, 0.3); }
+        .border-common { border-color: #10b981; box-shadow: 0 0 15px rgba(16, 185, 129, 0.3); }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0f172a;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #334155;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #475569;
+        }
+
+        /* Glowing Pulse Animation */
+        @keyframes pulse-glow {
+            0%, 100% { opacity: 0.8; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.03); }
+        }
+        .animate-pulse-glow {
+            animation: pulse-glow 2s infinite ease-in-out;
+        }
+
+        /* Screen Shake Effect for Heavy Hits */
+        .shake {
+            animation: shake 0.4s cubic-bezier(.36,.07,.19,.97) both;
+        }
+
+        @keyframes shake {
+            10%, 90% { transform: translate3d(-2px, 0, 0); }
+            20%, 80% { transform: translate3d(4px, 0, 0); }
+            30%, 50%, 70% { transform: translate3d(-6px, 0, 0); }
+            40%, 60% { transform: translate3d(6px, 0, 0); }
+        }
+
+        canvas#particleCanvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            pointer-events: none;
+            z-index: 50;
+        }
+    </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col justify-between relative overflow-x-hidden">
+
+    <canvas id="particleCanvas"></canvas>
+
+    <header class="glass-panel sticky top-0 z-40 border-b border-slate-800 px-4 py-3 sm:px-8 flex flex-wrap justify-between items-center shadow-lg">
+        <div class="flex items-center gap-3 cursor-pointer" onclick="switchTab('codex')">
+            <div class="w-10 h-10 rounded-full bg-amber-500/20 border border-amber-400 flex items-center justify-center text-amber-400 text-xl font-bold font-cinzel shadow-inner">
+                🦅
+            </div>
+            <div>
+                <h1 class="font-cinzel text-xl sm:text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-amber-300 via-yellow-200 to-amber-500 tracking-wider">
+                    AVIAN LEGENDS
+                </h1>
+                <p class="text-xs text-amber-200/60 uppercase tracking-widest font-semibold">Official 8-Bird Set</p>
+            </div>
+        </div>
+
+        <!-- Navigation Tabs -->
+        <nav class="flex items-center gap-2 mt-2 sm:mt-0">
+            <button id="nav-codex" onclick="switchTab('codex')" class="px-4 py-2 rounded-xl text-sm font-semibold transition-all duration-200 flex items-center gap-2 bg-amber-500/20 text-amber-300 border border-amber-500/40">
+                <i class="fa-solid font-bold fa-book-open"></i> Codex Collection
+            </button>
+            <button id="nav-builder" onclick="switchTab('builder')" class="px-4 py-2 rounded-xl text-sm font-semibold transition-all duration-200 flex items-center gap-2 bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700">
+                <i class="fa-solid fa-layer-group"></i> Deck Builder <span id="deck-count-badge" class="ml-1 bg-amber-500 text-slate-950 px-2 py-0.5 rounded-full text-xs font-bold">0/3</span>
+            </button>
+            <button id="nav-battle" onclick="switchTab('battle')" class="px-4 py-2 rounded-xl text-sm font-semibold transition-all duration-200 flex items-center gap-2 bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700">
+                <i class="fa-solid fa-swords"></i> Battle Arena
+            </button>
+        </nav>
+    </header>
+
+    <main class="container mx-auto px-4 py-6 flex-grow z-10 max-w-7xl">
+
+        <!-- VIEW 1: CODEX VIEW -->
+        <section id="view-codex" class="space-y-6">
+            <div class="glass-panel p-6 rounded-2xl border border-amber-500/20 shadow-2xl relative overflow-hidden">
+                <div class="absolute -right-10 -bottom-10 w-60 h-60 bg-amber-500/10 rounded-full blur-3xl pointer-events-none"></div>
+                <div class="max-w-2xl">
+                    <h2 class="font-cinzel text-2xl sm:text-3xl font-bold text-amber-300 mb-2">The Official 8 Avian Legends</h2>
+                    <p class="text-slate-300 text-sm sm:text-base leading-relaxed">
+                        Explore the complete set of 8 realistic bird cards. Click on any card to open the interactive 3D Card Inspector, or head over to the Deck Builder to form your 3-bird team!
+                    </p>
+                </div>
+            </div>
+
+            <!-- Cards Grid -->
+            <div id="codex-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                <!-- Dynamically filled by JS -->
+            </div>
+        </section>
+
+
+        <!-- VIEW 2: DECK BUILDER VIEW -->
+        <section id="view-builder" class="hidden space-y-6">
+            <div class="glass-panel p-6 rounded-2xl border border-amber-500/20 shadow-2xl flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                <div>
+                    <h2 class="font-cinzel text-2xl sm:text-3xl font-bold text-amber-300 mb-1">Assemble Your Trio</h2>
+                    <p class="text-slate-300 text-sm">Select exactly 3 cards from your 8 legend options to enter the Battle Arena.</p>
+                </div>
+                <div class="flex items-center gap-3">
+                    <button onclick="clearDeck()" class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-sm font-semibold border border-slate-700 transition">
+                        Clear Deck
+                    </button>
+                    <button id="start-battle-btn" onclick="switchTab('battle')" disabled class="px-6 py-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-yellow-500 text-slate-950 font-bold text-sm tracking-wider opacity-50 cursor-not-allowed shadow-lg transition duration-200">
+                        LAUNCH BATTLE <i class="fa-solid fa-bolt ml-1"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Active Selected Trio Banner -->
+            <div class="glass-card p-6 rounded-2xl border border-slate-700/60">
+                <h3 class="font-cinzel text-lg font-bold text-amber-400 mb-4 flex items-center gap-2">
+                    <i class="fa-solid fa-shield-halved"></i> Selected Battle Squad (<span id="squad-count">0</span>/3)
+                </h3>
+                <div id="squad-slots" class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <!-- 3 Slots filled dynamically -->
+                </div>
+            </div>
+
+            <!-- Available Pool -->
+            <div>
+                <h3 class="font-cinzel text-lg font-bold text-slate-300 mb-4">Available Bird Pool (Strictly 8 Birds)</h3>
+                <div id="builder-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                    <!-- Dynamically filled -->
+                </div>
+            </div>
+        </section>
+
+
+        <!-- VIEW 3: BATTLE ARENA VIEW -->
+        <section id="view-battle" class="hidden space-y-6">
+            <!-- Battle Setup or Battle Grid -->
+            <div id="battle-unready" class="glass-panel p-12 rounded-2xl text-center border border-amber-500/20 max-w-xl mx-auto space-y-4">
+                <div class="text-5xl mb-2">⚔️</div>
+                <h2 class="font-cinzel text-2xl font-bold text-amber-300">Your Battle Squad is Incomplete</h2>
+                <p class="text-slate-400 text-sm">You must select exactly 3 bird cards in the Deck Builder before initiating a battle!</p>
+                <button onclick="switchTab('builder')" class="px-6 py-3 rounded-xl bg-gradient-to-r from-amber-500 to-yellow-500 text-slate-950 font-bold text-sm shadow-lg hover:brightness-110 transition">
+                    Go To Deck Builder
+                </button>
+            </div>
+
+            <div id="battle-active" class="hidden space-y-6">
+                <!-- Battle Control Header -->
+                <div class="glass-panel p-4 rounded-xl border border-slate-800 flex flex-wrap justify-between items-center gap-4">
+                    <div class="flex items-center gap-3">
+                        <span id="turn-badge" class="px-3 py-1 rounded-full text-xs font-bold bg-amber-500/20 text-amber-300 border border-amber-500/40 uppercase tracking-widest">
+                            Your Turn
+                        </span>
+                        <span id="round-counter" class="text-slate-400 text-sm font-semibold">Round 1</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <button id="btn-attack" onclick="executePlayerTurn('attack')" class="px-5 py-2.5 rounded-xl bg-gradient-to-r from-red-600 to-rose-500 hover:from-red-500 hover:to-rose-400 text-white font-bold text-sm shadow-lg flex items-center gap-2 transition transform active:scale-95">
+                            <i class="fa-solid fa-swords"></i> ATTACK
+                        </button>
+                        <button id="btn-ability" onclick="executePlayerTurn('ability')" class="px-5 py-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-yellow-400 hover:from-amber-400 hover:to-yellow-300 text-slate-950 font-bold text-sm shadow-lg flex items-center gap-2 transition transform active:scale-95">
+                            <i class="fa-solid fa-wand-magic-sparkles"></i> USE PASSIVE/SPECIAL
+                        </button>
+                        <button onclick="resetBattle()" class="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-sm font-semibold border border-slate-700 transition">
+                            Surrender
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Arena Combat Display -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center relative">
+                    
+                    <!-- Player Side -->
+                    <div class="glass-card p-6 rounded-2xl border border-blue-500/30 relative">
+                        <div class="absolute top-3 left-4 text-xs font-bold uppercase tracking-widest text-blue-400 flex items-center gap-1">
+                            <i class="fa-solid fa-user-shield"></i> Player Team
+                        </div>
+                        <div id="player-active-card" class="mt-4 flex justify-center">
+                            <!-- Active Card JS Render -->
+                        </div>
+                        <!-- Reserve Team Lineup -->
+                        <div class="mt-6 pt-4 border-t border-slate-800">
+                            <div class="text-xs text-slate-400 font-semibold mb-2">Lineup Bench:</div>
+                            <div id="player-bench" class="flex gap-3 justify-center">
+                                <!-- Bench JS Render -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- VS Divider Icon -->
+                    <div class="hidden md:flex absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-20 w-14 h-14 rounded-full bg-slate-900 border-2 border-amber-500 text-amber-400 font-cinzel font-black text-xl items-center justify-center shadow-2xl">
+                        VS
+                    </div>
+
+                    <!-- Opponent AI Side -->
+                    <div class="glass-card p-6 rounded-2xl border border-red-500/30 relative">
+                        <div class="absolute top-3 left-4 text-xs font-bold uppercase tracking-widest text-red-400 flex items-center gap-1">
+                            <i class="fa-solid fa-robot"></i> Rival AI Team
+                        </div>
+                        <div id="ai-active-card" class="mt-4 flex justify-center">
+                            <!-- Active Card JS Render -->
+                        </div>
+                        <!-- Reserve Team Lineup -->
+                        <div class="mt-6 pt-4 border-t border-slate-800">
+                            <div class="text-xs text-slate-400 font-semibold mb-2">Lineup Bench:</div>
+                            <div id="ai-bench" class="flex gap-3 justify-center">
+                                <!-- Bench JS Render -->
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- Battle Combat Log -->
+                <div class="glass-panel p-4 rounded-xl border border-slate-800">
+                    <h4 class="font-cinzel text-sm font-bold text-amber-400 mb-2 flex items-center gap-2">
+                        <i class="fa-solid fa-scroll"></i> Combat Log
+                    </h4>
+                    <div id="battle-log" class="h-28 overflow-y-auto space-y-1.5 text-xs sm:text-sm font-mono pr-2">
+                        <!-- Dynamic Combat Logs -->
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="glass-panel border-t border-slate-800 py-4 px-6 text-center text-xs text-slate-400 z-10">
+        <p>Avian Legends TCG &bull; Exclusively featuring the 8 iconic bird legends &bull; Powered by HTML5 & Web Audio API</p>
+    </footer>
+
+    <div id="inspector-modal" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4 hidden">
+        <div class="glass-panel max-w-xl w-full rounded-2xl border border-amber-500/30 shadow-2xl p-6 relative animate-pulse-glow max-h-[90vh] overflow-y-auto">
+            <button onclick="closeInspector()" class="absolute top-4 right-4 w-8 h-8 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-300 flex items-center justify-center transition">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+            <div id="inspector-content">
+                <!-- Filled dynamically by Inspector JS -->
+            </div>
+        </div>
+    </div>
+
+
+    <script>
+        const BIRD_DATABASE = [
+            {
+                id: 'kakapo',
+                name: 'Kakapo',
+                scientificName: 'Strigops habroptilus',
+                hp: 75,
+                maxHp: 75,
+                attack: 11,
+                defense: 7,
+                type: 'Land',
+                typeIcon: '🌲',
+                gameRarity: 'Critically Endangered',
+                conservationStatus: 'Critically Endangered (IUCN)',
+                rarityClass: 'border-critically-endangered',
+                bgGradient: 'from-emerald-900/80 via-green-950 to-slate-950',
+                abilityName: 'Camouflage Freeze',
+                abilityDesc: 'Completely ignores all damage from the very first hit it receives.',
+                description: 'A heavy, flightless, nocturnal parrot native to New Zealand, known for its moss-green plumage and curious nature.',
+                svgGraphic: `
+                    <svg viewBox="0 0 200 200" class="w-full h-full drop-shadow-xl">
+                        <circle cx="100" cy="100" r="80" fill="#15803d" opacity="0.2"/>
+                        <!-- Feathered Body -->
+                        <path d="M 60 140 C 40 90, 80 50, 120 50 C 160 50, 170 100, 150 150 C 130 180, 70 170, 60 140 Z" fill="#4d7c0f"/>
+                        <path d="M 70 130 C 55 95, 85 65, 115 65 C 145 65, 155 100, 140 140 Z" fill="#65a30d"/>
+                        <!-- Face Disks & Eyes -->
+                        <circle cx="100" cy="85" r="30" fill="#a3e635" opacity="0.8"/>
+                        <circle cx="88" cy="80" r="7" fill="#1e293b"/>
+                        <circle cx="112" cy="80" r="7" fill="#1e293b"/>
+                        <circle cx="90" cy="78" r="2" fill="#ffffff"/>
+                        <circle cx="114" cy="78" r="2" fill="#ffffff"/>
+                        <!-- Beak -->
+                        <path d="M 95 85 L 105 85 L 100 102 Z" fill="#cbd5e1"/>
+                        <!-- Texture feathers -->
+                        <path d="M 75 110 Q 85 100 95 110" stroke="#365314" stroke-width="3" fill="none"/>
+                        <path d="M 105 110 Q 115 100 125 110" stroke="#365314" stroke-width="3" fill="none"/>
+                        <path d="M 85 130 Q 95 120 105 130" stroke="#365314" stroke-width="3" fill="none"/>
+                    </svg>
+                `
+            },
+            {
+                id: 'philippine_eagle',
+                name: 'Philippine Eagle',
+                scientificName: 'Pithecophaga jefferyi',
+                hp: 60,
+                maxHp: 60,
+                attack: 20,
+                defense: 3,
+                type: 'Sky',
+                typeIcon: '☁️',
+                gameRarity: 'Critically Endangered',
+                conservationStatus: 'Critically Endangered (IUCN)',
+                rarityClass: 'border-critically-endangered',
+                bgGradient: 'from-amber-950/80 via-stone-900 to-slate-950',
+                abilityName: 'Apex Talon',
+                abilityDesc: "When this bird's HP drops below 25, its Attack increases by +5.",
+                description: "One of the world's largest and most powerful forest eagles, distinguished by a shaggy, leonin crest.",
+                svgGraphic: `
+                    <svg viewBox="0 0 200 200" class="w-full h-full drop-shadow-xl">
+                        <circle cx="100" cy="100" r="80" fill="#b45309" opacity="0.2"/>
+                        <!-- Shaggy Crest -->
+                        <path d="M 60 70 L 40 40 L 75 55 L 70 30 L 95 50 L 100 20 L 115 50 L 135 30 L 130 55 L 160 40 L 140 70 Z" fill="#d97706"/>
+                        <!-- Head & Body -->
+                        <path d="M 65 70 C 65 50, 135 50, 135 70 C 145 120, 130 160, 100 170 C 70 160, 55 120, 65 70 Z" fill="#fef3c7"/>
+                        <!-- Dark Feathers -->
+                        <path d="M 55 110 C 50 140, 70 170, 100 170 C 130 170, 150 140, 145 110 Z" fill="#78350f"/>
+                        <!-- Piercing Eye -->
+                        <circle cx="85" cy="80" r="8" fill="#f59e0b"/>
+                        <circle cx="85" cy="80" r="4" fill="#0f172a"/>
+                        <!-- Sharp Beak -->
+                        <path d="M 100 75 Q 145 80 120 115 Q 105 100 100 90 Z" fill="#334155"/>
+                    </svg>
+                `
+            },
+            {
+                id: 'african_penguin',
+                name: 'African Penguin',
+                scientificName: 'Spheniscus demersus',
+                hp: 62,
+                maxHp: 62,
+                attack: 12,
+                defense: 6,
+                type: 'Water',
+                typeIcon: '🌊',
+                gameRarity: 'Endangered',
+                conservationStatus: 'Endangered (IUCN)',
+                rarityClass: 'border-endangered',
+                bgGradient: 'from-cyan-950/80 via-slate-900 to-slate-950',
+                abilityName: 'Thick Plumage',
+                abilityDesc: 'Permanently takes 2 less damage from all incoming attacks (minimum 1 damage received).',
+                description: 'Also known as the jackass penguin for its donkey-like braying, this coastal swimmer faces declining food sources.',
+                svgGraphic: `
+                    <svg viewBox="0 0 200 200" class="w-full h-full drop-shadow-xl">
+                        <circle cx="100" cy="100" r="80" fill="#0284c7" opacity="0.2"/>
+                        <!-- Black Body Contour -->
+                        <path d="M 65 60 C 65 30, 135 30, 135 60 C 150 110, 140 170, 100 175 C 60 170, 50 110, 65 60 Z" fill="#0f172a"/>
+                        <!-- White Chest Oval -->
+                        <path d="M 78 75 C 78 50, 122 50, 122 75 C 130 115, 125 165, 100 168 C 75 165, 70 115, 78 75 Z" fill="#f8fafc"/>
+                        <!-- Horseshoe Black Stripe -->
+                        <path d="M 82 100 Q 100 130 118 100" stroke="#0f172a" stroke-width="6" fill="none"/>
+                        <!-- Pink Eye Patch & Eye -->
+                        <path d="M 80 55 Q 90 50 88 65 Z" fill="#f43f5e" opacity="0.7"/>
+                        <circle cx="86" cy="58" r="3.5" fill="#0f172a"/>
+                        <!-- Beak -->
+                        <path d="M 90 62 L 115 67 L 92 74 Z" fill="#334155"/>
+                    </svg>
+                `
+            },
+            {
+                id: 'secretarybird',
+                name: 'Secretarybird',
+                scientificName: 'Sagittarius serpentarius',
+                hp: 58,
+                maxHp: 58,
+                attack: 15,
+                defense: 4,
+                type: 'Land',
+                typeIcon: '🌲',
+                gameRarity: 'Rare',
+                conservationStatus: 'Endangered (IUCN)',
+                rarityClass: 'border-rare',
+                bgGradient: 'from-purple-950/80 via-slate-900 to-slate-950',
+                abilityName: 'Stomp',
+                abilityDesc: 'Deals +5 bonus damage against Land-type opponents.',
+                description: 'A tall African bird of prey that stalks open grasslands and hunts venomous snakes with swift, powerful kicks.',
+                svgGraphic: `
+                    <svg viewBox="0 0 200 200" class="w-full h-full drop-shadow-xl">
+                        <circle cx="100" cy="100" r="80" fill="#7e22ce" opacity="0.2"/>
+                        <!-- Crest Feathers -->
+                        <path d="M 70 45 L 30 20 L 75 35 L 40 0 L 80 30 L 60 -10 L 90 25 Z" fill="#1e293b"/>
+                        <!-- Head & Neck -->
+                        <path d="M 75 45 C 80 30, 120 30, 125 45 L 120 110 L 80 110 Z" fill="#e2e8f0"/>
+                        <!-- Body Feathering -->
+                        <path d="M 70 100 C 70 80, 130 80, 130 100 L 140 150 L 60 150 Z" fill="#94a3b8"/>
+                        <path d="M 60 150 L 140 150 L 100 180 Z" fill="#0f172a"/>
+                        <!-- Face Patch & Beak -->
+                        <circle cx="105" cy="55" r="12" fill="#f97316"/>
+                        <circle cx="108" cy="53" r="3" fill="#0f172a"/>
+                        <path d="M 115 55 L 135 62 L 112 68 Z" fill="#64748b"/>
+                    </svg>
+                `
+            },
+            {
+                id: 'mallard',
+                name: 'Mallard',
+                scientificName: 'Anas platyrhynchos',
+                hp: 55,
+                maxHp: 55,
+                attack: 10,
+                defense: 4,
+                type: 'Water',
+                typeIcon: '🌊',
+                gameRarity: 'Common',
+                conservationStatus: 'Least Concern (IUCN)',
+                rarityClass: 'border-common',
+                bgGradient: 'from-teal-950/80 via-slate-900 to-slate-950',
+                abilityName: 'Paddle Rest',
+                abilityDesc: 'Restores 5 HP to itself upon entering the battle.',
+                description: "A hardy, adaptable dabbling duck recognized by the male's glossy bottle-green head.",
+                svgGraphic: `
+                    <svg viewBox="0 0 200 200" class="w-full h-full drop-shadow-xl">
+                        <circle cx="100" cy="100" r="80" fill="#0d9488" opacity="0.2"/>
+                        <!-- Glossy Green Head -->
+                        <circle cx="125" cy="70" r="30" fill="#047857"/>
+                        <!-- White Ring -->
+                        <path d="M 110 95 Q 125 100 140 95" stroke="#f8fafc" stroke-width="5" fill="none"/>
+                        <!-- Body -->
+                        <path d="M 50 120 C 50 90, 110 90, 125 100 C 150 110, 165 140, 140 160 C 90 170, 50 150, 50 120 Z" fill="#78350f"/>
+                        <!-- Speculum Blue Wing -->
+                        <path d="M 70 125 Q 100 115 120 135 Q 90 145 70 125 Z" fill="#2563eb"/>
+                        <!-- Yellow Beak -->
+                        <path d="M 145 68 L 175 75 L 143 82 Z" fill="#eab308"/>
+                        <!-- Eye -->
+                        <circle cx="132" cy="65" r="3.5" fill="#0f172a"/>
+                    </svg>
+                `
+            },
+            {
+                id: 'house_sparrow',
+                name: 'House Sparrow',
+                scientificName: 'Passer domesticus',
+                hp: 45,
+                maxHp: 45,
+                attack: 12,
+                defense: 3,
+                type: 'Land',
+                typeIcon: '🌲',
+                gameRarity: 'Common',
+                conservationStatus: 'Least Concern (IUCN)',
+                rarityClass: 'border-common',
+                bgGradient: 'from-amber-950/60 via-slate-900 to-slate-950',
+                abilityName: 'Flock Strike',
+                abilityDesc: 'Deals +4 extra damage if this bird is the first in your 3-bird lineup.',
+                description: 'A familiar city songbird found across the globe, thriving wherever humans build communities.',
+                svgGraphic: `
+                    <svg viewBox="0 0 200 200" class="w-full h-full drop-shadow-xl">
+                        <circle cx="100" cy="100" r="80" fill="#d97706" opacity="0.2"/>
+                        <!-- Brown/Grey Body -->
+                        <path d="M 60 120 C 50 80, 90 50, 130 65 C 160 80, 160 120, 140 150 C 100 170, 60 150, 60 120 Z" fill="#a16207"/>
+                        <!-- Grey Cap -->
+                        <path d="M 90 58 C 100 45, 130 50, 135 65 Z" fill="#64748b"/>
+                        <!-- Black Bib -->
+                        <path d="M 115 75 Q 125 90 110 105 Z" fill="#0f172a"/>
+                        <!-- Eye & Beak -->
+                        <circle cx="118" cy="65" r="3" fill="#0f172a"/>
+                        <path d="M 130 65 L 148 70 L 128 75 Z" fill="#334155"/>
+                    </svg>
+                `
+            },
+            {
+                id: 'barn_owl',
+                name: 'Barn Owl',
+                scientificName: 'Tyto alba',
+                hp: 48,
+                maxHp: 48,
+                attack: 13,
+                defense: 3,
+                type: 'Sky',
+                typeIcon: '☁️',
+                gameRarity: 'Common',
+                conservationStatus: 'Least Concern (IUCN)',
+                rarityClass: 'border-common',
+                bgGradient: 'from-indigo-950/80 via-slate-900 to-slate-950',
+                abilityName: 'Silent Swoop',
+                abilityDesc: 'Deals +3 damage on its very first attack in battle.',
+                description: 'A ghostly nocturnal hunter with heart-shaped facial disks that funnel sound to its ears.',
+                svgGraphic: `
+                    <svg viewBox="0 0 200 200" class="w-full h-full drop-shadow-xl">
+                        <circle cx="100" cy="100" r="80" fill="#6366f1" opacity="0.2"/>
+                        <!-- Body -->
+                        <path d="M 65 100 C 60 60, 140 60, 135 100 C 145 140, 130 175, 100 175 C 70 175, 55 140, 65 100 Z" fill="#b45309"/>
+                        <!-- Heart Facial Disc -->
+                        <path d="M 100 65 C 80 50, 65 75, 100 110 C 135 75, 120 50, 100 65 Z" fill="#f8fafc"/>
+                        <!-- Dark Mysterious Eyes -->
+                        <circle cx="88" cy="78" r="6" fill="#020617"/>
+                        <circle cx="112" cy="78" r="6" fill="#020617"/>
+                        <!-- Small Beak -->
+                        <path d="M 98 85 L 102 85 L 100 95 Z" fill="#cbd5e1"/>
+                    </svg>
+                `
+            },
+            {
+                id: 'atlantic_puffin',
+                name: 'Atlantic Puffin',
+                scientificName: 'Fratercula arctica',
+                hp: 50,
+                maxHp: 50,
+                attack: 14,
+                defense: 5,
+                type: 'Water',
+                typeIcon: '🌊',
+                gameRarity: 'Uncommon',
+                conservationStatus: 'Vulnerable (IUCN)',
+                rarityClass: 'border-uncommon',
+                bgGradient: 'from-blue-950/80 via-slate-900 to-slate-950',
+                abilityName: 'Deep Dive',
+                abilityDesc: 'Reduces the damage taken from the next enemy attack by 4.',
+                description: 'Nicknamed the "clown of the sea," this seabird sports a brightly striped bill during breeding season.',
+                svgGraphic: `
+                    <svg viewBox="0 0 200 200" class="w-full h-full drop-shadow-xl">
+                        <circle cx="100" cy="100" r="80" fill="#2563eb" opacity="0.2"/>
+                        <!-- Black Back & White Front -->
+                        <path d="M 65 70 C 65 40, 135 40, 135 70 C 150 120, 135 170, 100 170 C 65 170, 50 120, 65 70 Z" fill="#0f172a"/>
+                        <circle cx="95" cy="75" r="22" fill="#f8fafc"/>
+                        <path d="M 80 100 C 80 80, 120 80, 120 100 L 125 160 L 75 160 Z" fill="#f8fafc"/>
+                        <!-- Striped Beak -->
+                        <path d="M 112 65 L 155 75 L 112 88 Z" fill="#ea580c"/>
+                        <path d="M 130 69 L 142 72 L 130 83 Z" fill="#eab308"/>
+                        <!-- Eye -->
+                        <circle cx="98" cy="70" r="4" fill="#0f172a"/>
+                    </svg>
+                `
+            }
+        ];
+
+        let playerDeck = []; // Array of bird IDs (Max 3)
+        let activeTab = 'codex';
+
+        // Battle Engine State
+        let battleState = {
+            round: 1,
+            playerTeam: [],
+            aiTeam: [],
+            playerIndex: 0,
+            aiIndex: 0,
+            isPlayerTurn: true,
+            gameOver: false,
+            // Track dynamic passive ability state flags
+            playerStates: {},
+            aiStates: {}
+        };
+
+        const AudioFX = {
+            ctx: null,
+            init() {
+                if (!this.ctx) {
+                    this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+                }
+            },
+            playSwoosh() {
+                this.init();
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(400, this.ctx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(80, this.ctx.currentTime + 0.15);
+                gain.gain.setValueAtTime(0.2, this.ctx.currentTime);
+                gain.gain.linearRampToValueAtTime(0.01, this.ctx.currentTime + 0.15);
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+                osc.start();
+                osc.stop(this.ctx.currentTime + 0.15);
+            },
+            playHit() {
+                this.init();
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                osc.type = 'square';
+                osc.frequency.setValueAtTime(120, this.ctx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(30, this.ctx.currentTime + 0.2);
+                gain.gain.setValueAtTime(0.3, this.ctx.currentTime);
+                gain.gain.linearRampToValueAtTime(0.01, this.ctx.currentTime + 0.2);
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+                osc.start();
+                osc.stop(this.ctx.currentTime + 0.2);
+            },
+            playShield() {
+                this.init();
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(300, this.ctx.currentTime);
+                osc.frequency.linearRampToValueAtTime(600, this.ctx.currentTime + 0.25);
+                gain.gain.setValueAtTime(0.2, this.ctx.currentTime);
+                gain.gain.linearRampToValueAtTime(0.01, this.ctx.currentTime + 0.25);
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+                osc.start();
+                osc.stop(this.ctx.currentTime + 0.25);
+            }
+        };
+
+        const canvas = document.getElementById('particleCanvas');
+        const ctx = canvas.getContext('2d');
+        let particles = [];
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        function createFloatingDamage(text, x, y, color = '#f59e0b') {
+            particles.push({
+                text, x, y, color,
+                opacity: 1,
+                vy: -2,
+                life: 60
+            });
+        }
+
+        function createFeatherBurst(x, y, color = '#fbbf24') {
+            for (let i = 0; i < 15; i++) {
+                particles.push({
+                    x, y,
+                    vx: (Math.random() - 0.5) * 8,
+                    vy: (Math.random() - 0.5) * 8,
+                    size: Math.random() * 4 + 2,
+                    color,
+                    opacity: 1,
+                    life: 40
+                });
+            }
+        }
+
+        function renderParticles() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            for (let i = particles.length - 1; i >= 0; i--) {
+                let p = particles[i];
+                p.life--;
+                if (p.text) {
+                    p.y += p.vy;
+                    p.opacity = p.life / 60;
+                    ctx.font = 'bold 22px Cinzel, sans-serif';
+                    ctx.fillStyle = p.color;
+                    ctx.globalAlpha = Math.max(0, p.opacity);
+                    ctx.fillText(p.text, p.x, p.y);
+                } else {
+                    p.x += p.vx;
+                    p.y += p.vy;
+                    p.opacity = p.life / 40;
+                    ctx.fillStyle = p.color;
+                    ctx.globalAlpha = Math.max(0, p.opacity);
+                    ctx.beginPath();
+                    ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+            }
+            ctx.globalAlpha = 1;
+            requestAnimationFrame(renderParticles);
+        }
+        renderParticles();
+
+
+        function createCardHTML(bird, options = {}) {
+            const isSelected = playerDeck.includes(bird.id);
+            const clickHandler = options.onClick || `openInspector('${bird.id}')`;
+
+            return `
+                <div class="card-container cursor-pointer" onclick="${clickHandler}">
+                    <div class="card-inner glass-card rounded-2xl border-2 ${bird.rarityClass} p-4 flex flex-col justify-between h-[360px] relative overflow-hidden group"
+                         onmousemove="handleCardTilt(event, this)" onmouseleave="resetCardTilt(this)">
+                        
+                        <!-- Foil Shine Overlay -->
+                        <div class="foil-overlay absolute inset-0 opacity-0 group-hover:opacity-100"></div>
+
+                        <!-- Card Top Bar: HP & Rarity Badge -->
+                        <div class="flex justify-between items-center z-10">
+                            <span class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-slate-900/80 text-amber-300 border border-amber-500/30 flex items-center gap-1">
+                                ❤️ ${bird.hp} HP
+                            </span>
+                            <span class="text-xs font-semibold text-slate-300 bg-slate-900/60 px-2 py-0.5 rounded-md">
+                                ${bird.typeIcon} ${bird.type}
+                            </span>
+                        </div>
+
+                        <!-- SVG Art Illustration Container -->
+                        <div class="w-full h-36 my-2 rounded-xl bg-gradient-to-b ${bird.bgGradient} flex items-center justify-center p-2 relative overflow-hidden border border-slate-700/50">
+                            ${bird.svgGraphic}
+                        </div>
+
+                        <!-- Title & Scientific Name -->
+                        <div class="text-center z-10">
+                            <h3 class="font-cinzel text-base font-bold text-slate-100 truncate">${bird.name}</h3>
+                            <p class="text-[10px] italic text-amber-200/70 truncate">${bird.scientificName}</p>
+                        </div>
+
+                        <!-- Stats Strip -->
+                        <div class="grid grid-cols-2 gap-2 my-2 text-center text-xs font-bold z-10">
+                            <div class="bg-slate-900/70 p-1.5 rounded-lg border border-slate-800 text-rose-400">
+                                ⚔️ ${bird.attack} ATK
+                            </div>
+                            <div class="bg-slate-900/70 p-1.5 rounded-lg border border-slate-800 text-blue-400">
+                                🛡️ ${bird.defense} DEF
+                            </div>
+                        </div>
+
+                        <!-- Passive Ability Footer Box -->
+                        <div class="bg-slate-900/90 p-2 rounded-xl border border-amber-500/20 z-10">
+                            <div class="text-[11px] font-bold text-amber-300 truncate">
+                                [${bird.abilityName}]
+                            </div>
+                            <div class="text-[10px] text-slate-300 line-clamp-2 leading-tight mt-0.5">
+                                ${bird.abilityDesc}
+                            </div>
+                        </div>
+
+                        ${options.showDeckSelect ? `
+                            <div class="mt-2 text-center z-10">
+                                <span class="px-3 py-1 rounded-lg text-xs font-bold ${isSelected ? 'bg-amber-500 text-slate-950' : 'bg-slate-800 text-slate-300 border border-slate-700'}">
+                                    ${isSelected ? 'Selected' : 'Add to Deck'}
+                                </span>
+                            </div>
+                        ` : ''}
+
+                    </div>
+                </div>
+            `;
+        }
+
+        /* 3D Tilt Functions */
+        function handleCardTilt(e, card) {
+            const rect = card.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            const centerX = rect.width / 2;
+            const centerY = rect.height / 2;
+            const rotateX = ((y - centerY) / centerY) * -12;
+            const rotateY = ((x - centerX) / centerX) * 12;
+
+            card.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale(1.02)`;
+        }
+
+        function resetCardTilt(card) {
+            card.style.transform = `rotateX(0deg) rotateY(0deg) scale(1)`;
+        }
+
+
+        function switchTab(tab) {
+            activeTab = tab;
+            AudioFX.playSwoosh();
+
+            // Nav Button Styles
+            ['codex', 'builder', 'battle'].forEach(t => {
+                const btn = document.getElementById(`nav-${t}`);
+                const view = document.getElementById(`view-${t}`);
+                if (t === tab) {
+                    btn.className = "px-4 py-2 rounded-xl text-sm font-semibold transition-all duration-200 flex items-center gap-2 bg-amber-500/20 text-amber-300 border border-amber-500/40";
+                    view.classList.remove('hidden');
+                } else {
+                    btn.className = "px-4 py-2 rounded-xl text-sm font-semibold transition-all duration-200 flex items-center gap-2 bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700";
+                    view.classList.add('hidden');
+                }
+            });
+
+            if (tab === 'codex') renderCodex();
+            if (tab === 'builder') renderBuilder();
+            if (tab === 'battle') setupBattleView();
+        }
+
+
+        function renderCodex() {
+            const container = document.getElementById('codex-grid');
+            container.innerHTML = BIRD_DATABASE.map(bird => createCardHTML(bird)).join('');
+        }
+
+
+        function renderBuilder() {
+            // Update Squad Slots
+            const squadContainer = document.getElementById('squad-slots');
+            let squadHTML = '';
+            for (let i = 0; i < 3; i++) {
+                if (playerDeck[i]) {
+                    const bird = BIRD_DATABASE.find(b => b.id === playerDeck[i]);
+                    squadHTML += `
+                        <div class="relative group">
+                            <button onclick="toggleDeckCard('${bird.id}')" class="absolute -top-2 -right-2 z-20 w-7 h-7 rounded-full bg-rose-600 text-white font-bold text-xs flex items-center justify-center shadow-lg hover:bg-rose-500">
+                                ✕
+                            </button>
+                            ${createCardHTML(bird)}
+                        </div>
+                    `;
+                } else {
+                    squadHTML += `
+                        <div class="h-[360px] rounded-2xl border-2 border-dashed border-slate-800 flex flex-col items-center justify-center text-slate-600 p-6 text-center">
+                            <i class="fa-solid fa-plus text-3xl mb-2"></i>
+                            <span class="text-xs font-semibold">Empty Slot ${i + 1}</span>
+                        </div>
+                    `;
+                }
+            }
+            squadContainer.innerHTML = squadHTML;
+
+            // Update Available Pool
+            const poolContainer = document.getElementById('builder-grid');
+            poolContainer.innerHTML = BIRD_DATABASE.map(bird => createCardHTML(bird, {
+                showDeckSelect: true,
+                onClick: `toggleDeckCard('${bird.id}')`
+            })).join('');
+
+            // Badges & Buttons
+            document.getElementById('squad-count').innerText = playerDeck.length;
+            document.getElementById('deck-count-badge').innerText = `${playerDeck.length}/3`;
+
+            const launchBtn = document.getElementById('start-battle-btn');
+            if (playerDeck.length === 3) {
+                launchBtn.disabled = false;
+                launchBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+                launchBtn.classList.add('hover:brightness-110', 'animate-pulse');
+            } else {
+                launchBtn.disabled = true;
+                launchBtn.classList.add('opacity-50', 'cursor-not-allowed');
+                launchBtn.classList.remove('hover:brightness-110', 'animate-pulse');
+            }
+        }
+
+        function toggleDeckCard(id) {
+            AudioFX.playSwoosh();
+            if (playerDeck.includes(id)) {
+                playerDeck = playerDeck.filter(cardId => cardId !== id);
+            } else {
+                if (playerDeck.length < 3) {
+                    playerDeck.push(id);
+                }
+            }
+            renderBuilder();
+        }
+
+        function clearDeck() {
+            AudioFX.playSwoosh();
+            playerDeck = [];
+            renderBuilder();
+        }
+
+
+        function openInspector(birdId) {
+            AudioFX.playSwoosh();
+            const bird = BIRD_DATABASE.find(b => b.id === birdId);
+            const content = document.getElementById('inspector-content');
+
+            content.innerHTML = `
+                <div class="flex flex-col md:flex-row gap-6 items-center">
+                    <div class="w-full md:w-1/2">
+                        ${createCardHTML(bird)}
+                    </div>
+                    <div class="w-full md:w-1/2 space-y-4">
+                        <div>
+                            <span class="text-xs font-bold text-amber-400 uppercase tracking-widest">${bird.gameRarity}</span>
+                            <h2 class="font-cinzel text-2xl font-bold text-slate-100">${bird.name}</h2>
+                            <p class="text-xs italic text-slate-400">${bird.scientificName}</p>
+                        </div>
+
+                        <div class="space-y-2 text-xs">
+                            <div class="flex justify-between border-b border-slate-800 pb-1">
+                                <span class="text-slate-400">Conservation Status:</span>
+                                <span class="font-bold text-amber-300">${bird.conservationStatus}</span>
+                            </div>
+                            <div class="flex justify-between border-b border-slate-800 pb-1">
+                                <span class="text-slate-400">Habitat / Type:</span>
+                                <span class="font-bold text-slate-200">${bird.typeIcon} ${bird.type}</span>
+                            </div>
+                        </div>
+
+                        <div class="bg-slate-900/80 p-3 rounded-xl border border-amber-500/20">
+                            <h4 class="text-xs font-bold text-amber-300 uppercase tracking-wider mb-1">Ability Breakdown</h4>
+                            <div class="text-sm font-bold text-slate-200 mb-1">[${bird.abilityName}]</div>
+                            <p class="text-xs text-slate-300 leading-relaxed">${bird.abilityDesc}</p>
+                        </div>
+
+                        <p class="text-xs text-slate-400 italic leading-relaxed">
+                            "${bird.description}"
+                        </p>
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('inspector-modal').classList.remove('hidden');
+        }
+
+        function closeInspector() {
+            document.getElementById('inspector-modal').classList.add('hidden');
+        }
+
+
+        function setupBattleView() {
+            const unready = document.getElementById('battle-unready');
+            const active = document.getElementById('battle-active');
+
+            if (playerDeck.length !== 3) {
+                unready.classList.remove('hidden');
+                active.classList.add('hidden');
+                return;
+            }
+
+            unready.classList.add('hidden');
+            active.classList.remove('hidden');
+
+            if (battleState.gameOver || battleState.playerTeam.length === 0) {
+                initBattle();
+            } else {
+                renderBattleArena();
+            }
+        }
+
+        function initBattle() {
+            // Clone 3 player cards
+            const playerTeam = playerDeck.map(id => {
+                const base = BIRD_DATABASE.find(b => b.id === id);
+                return { ...base, hp: base.hp, maxHp: base.hp, currentAtk: base.attack };
+            });
+
+            // Randomly select 3 AI opponent cards strictly from the 8 database cards
+            const shuffled = [...BIRD_DATABASE].sort(() => 0.5 - Math.random());
+            const aiTeam = shuffled.slice(0, 3).map(base => ({
+                ...base, hp: base.hp, maxHp: base.hp, currentAtk: base.attack
+            }));
+
+            battleState = {
+                round: 1,
+                playerTeam,
+                aiTeam,
+                playerIndex: 0,
+                aiIndex: 0,
+                isPlayerTurn: true,
+                gameOver: false,
+                playerStates: {
+                    kakapoFirstHitIgnored: false,
+                    barnOwlFirstAttackDone: false,
+                    puffinDeepDiveActive: false
+                },
+                aiStates: {
+                    kakapoFirstHitIgnored: false,
+                    barnOwlFirstAttackDone: false,
+                    puffinDeepDiveActive: false
+                }
+            };
+
+            // Trigger Entry Passive Abilities (e.g., Mallard Paddle Rest)
+            checkEntryAbilities(playerTeam[0], 'Player', battleState.playerStates);
+            checkEntryAbilities(aiTeam[0], 'AI', battleState.aiStates);
+
+            logCombat(`⚔️ Battle Started! ${playerTeam[0].name} faces ${aiTeam[0].name}.`, 'text-amber-400 font-bold');
+            renderBattleArena();
+        }
+
+        function checkEntryAbilities(bird, owner, stateObj) {
+            // Mallard: Paddle Rest (+5 HP on entering)
+            if (bird.id === 'mallard') {
+                const heal = 5;
+                bird.hp = Math.min(bird.maxHp, bird.hp + heal);
+                logCombat(`✨ [Paddle Rest] ${owner}'s Mallard enters battle & restores ${heal} HP!`, 'text-emerald-400');
+            }
+        }
+
+        function renderBattleArena() {
+            const pActive = battleState.playerTeam[battleState.playerIndex];
+            const aiActive = battleState.aiTeam[battleState.aiIndex];
+
+            // Render Player Active
+            document.getElementById('player-active-card').innerHTML = pActive ? `
+                <div class="w-64">
+                    ${createBattleCardHTML(pActive, 'Player')}
+                </div>
+            ` : `<div class="text-rose-500 font-bold">Defeated</div>`;
+
+            // Render AI Active
+            document.getElementById('ai-active-card').innerHTML = aiActive ? `
+                <div class="w-64">
+                    ${createBattleCardHTML(aiActive, 'AI')}
+                </div>
+            ` : `<div class="text-rose-500 font-bold">Defeated</div>`;
+
+            // Render Benches
+            document.getElementById('player-bench').innerHTML = battleState.playerTeam.map((b, idx) => `
+                <div class="w-16 h-20 rounded-lg border ${idx === battleState.playerIndex ? 'border-amber-400 bg-amber-500/20' : 'border-slate-800 bg-slate-900'} p-1 text-center text-[10px] flex flex-col justify-between">
+                    <span class="truncate font-bold">${b.name}</span>
+                    <span class="font-bold ${b.hp > 0 ? 'text-emerald-400' : 'text-rose-500'}">${b.hp}/${b.maxHp}</span>
+                </div>
+            `).join('');
+
+            document.getElementById('ai-bench').innerHTML = battleState.aiTeam.map((b, idx) => `
+                <div class="w-16 h-20 rounded-lg border ${idx === battleState.aiIndex ? 'border-amber-400 bg-amber-500/20' : 'border-slate-800 bg-slate-900'} p-1 text-center text-[10px] flex flex-col justify-between">
+                    <span class="truncate font-bold">${b.name}</span>
+                    <span class="font-bold ${b.hp > 0 ? 'text-emerald-400' : 'text-rose-500'}">${b.hp}/${b.maxHp}</span>
+                </div>
+            `).join('');
+
+            // Turn Badge
+            document.getElementById('turn-badge').innerText = battleState.isPlayerTurn ? "Your Turn" : "AI Thinking...";
+            document.getElementById('round-counter').innerText = `Round ${battleState.round}`;
+
+            // Buttons State
+            document.getElementById('btn-attack').disabled = !battleState.isPlayerTurn || battleState.gameOver;
+            document.getElementById('btn-ability').disabled = !battleState.isPlayerTurn || battleState.gameOver;
+        }
+
+        function createBattleCardHTML(bird, owner) {
+            const hpPercent = Math.max(0, Math.min(100, (bird.hp / bird.maxHp) * 100));
+            return `
+                <div class="glass-card rounded-2xl border-2 ${bird.rarityClass} p-4 space-y-3 relative overflow-hidden">
+                    <div class="flex justify-between items-center text-xs font-bold">
+                        <span class="text-amber-300 font-cinzel">${bird.name}</span>
+                        <span class="text-slate-400">${bird.typeIcon} ${bird.type}</span>
+                    </div>
+
+                    <!-- Custom Dynamic HP Bar -->
+                    <div class="w-full bg-slate-900 rounded-full h-3 border border-slate-700 overflow-hidden">
+                        <div class="h-full bg-gradient-to-r from-emerald-500 to-green-400 transition-all duration-300" style="width: ${hpPercent}%"></div>
+                    </div>
+                    <div class="text-right text-[11px] font-bold text-slate-300">${bird.hp} / ${bird.maxHp} HP</div>
+
+                    <div class="w-full h-28 my-1 rounded-xl bg-gradient-to-b ${bird.bgGradient} flex items-center justify-center p-1 border border-slate-800">
+                        ${bird.svgGraphic}
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-2 text-center text-xs font-bold">
+                        <div class="bg-slate-900/80 p-1.5 rounded-lg border border-slate-800 text-rose-400">
+                            ⚔️ ${bird.currentAtk} ATK
+                        </div>
+                        <div class="bg-slate-900/80 p-1.5 rounded-lg border border-slate-800 text-blue-400">
+                            🛡️ ${bird.defense} DEF
+                        </div>
+                    </div>
+
+                    <div class="bg-slate-900/90 p-2 rounded-xl border border-amber-500/20 text-[10px]">
+                        <span class="font-bold text-amber-300">[${bird.abilityName}]</span>
+                        <p class="text-slate-400 line-clamp-1">${bird.abilityDesc}</p>
+                    </div>
+                </div>
+            `;
+        }
+
+        function executePlayerTurn(actionType) {
+            if (!battleState.isPlayerTurn || battleState.gameOver) return;
+
+            const attacker = battleState.playerTeam[battleState.playerIndex];
+            const defender = battleState.aiTeam[battleState.aiIndex];
+
+            if (actionType === 'ability' && attacker.id === 'atlantic_puffin') {
+                battleState.playerStates.puffinDeepDiveActive = true;
+                AudioFX.playShield();
+                logCombat(`🌊 ${attacker.name} uses [Deep Dive]! Next incoming attack damage will be reduced by 4.`, 'text-cyan-400');
+            } else {
+                performAttack(attacker, defender, 'Player', 'AI', battleState.playerStates, battleState.aiStates);
+            }
+
+            renderBattleArena();
+
+            if (checkBattleEnd()) return;
+
+            // Turn handover to AI
+            battleState.isPlayerTurn = false;
+            renderBattleArena();
+
+            setTimeout(() => {
+                executeAITurn();
+            }, 1200);
+        }
+
+        function executeAITurn() {
+            if (battleState.gameOver) return;
+
+            const attacker = battleState.aiTeam[battleState.aiIndex];
+            const defender = battleState.playerTeam[battleState.playerIndex];
+
+            // Simple AI Logic: Uses ability if Puffin, else attacks
+            if (attacker.id === 'atlantic_puffin' && Math.random() > 0.5 && !battleState.aiStates.puffinDeepDiveActive) {
+                battleState.aiStates.puffinDeepDiveActive = true;
+                AudioFX.playShield();
+                logCombat(`🌊 Rival AI ${attacker.name} uses [Deep Dive]!`, 'text-cyan-400');
+            } else {
+                performAttack(attacker, defender, 'AI', 'Player', battleState.aiStates, battleState.playerStates);
+            }
+
+            battleState.round++;
+            battleState.isPlayerTurn = true;
+            renderBattleArena();
+            checkBattleEnd();
+        }
+
+
+        function performAttack(attacker, defender, atkOwner, defOwner, atkState, defState) {
+            AudioFX.playHit();
+            document.body.classList.add('shake');
+            setTimeout(() => document.body.classList.remove('shake'), 400);
+
+            // 1. Check Kakapo Camouflage Freeze (Ignores VERY FIRST hit)
+            if (defender.id === 'kakapo' && !defState.kakapoFirstHitIgnored) {
+                defState.kakapoFirstHitIgnored = true;
+                AudioFX.playShield();
+                logCombat(`🛡️ [Camouflage Freeze] ${defOwner}'s Kakapo completely ignored all incoming damage!`, 'text-amber-300 font-bold');
+                createFloatingDamage("BLOCKED!", window.innerWidth / 2, window.innerHeight / 2, '#38bdf8');
+                return;
+            }
+
+            // Base Damage Calc
+            let baseAtk = attacker.currentAtk;
+
+            // 2. Check House Sparrow: Flock Strike (+4 extra damage if 1st bird in lineup)
+            if (attacker.id === 'house_sparrow') {
+                const isFirstInLineup = (atkOwner === 'Player' ? battleState.playerIndex : battleState.aiIndex) === 0;
+                if (isFirstInLineup) {
+                    baseAtk += 4;
+                    logCombat(`🪶 [Flock Strike] ${attacker.name} gains +4 bonus damage for leading the lineup!`, 'text-amber-400');
+                }
+            }
+
+            // 3. Check Barn Owl: Silent Swoop (+3 damage on very first attack)
+            if (attacker.id === 'barn_owl' && !atkState.barnOwlFirstAttackDone) {
+                atkState.barnOwlFirstAttackDone = true;
+                baseAtk += 3;
+                logCombat(`🦉 [Silent Swoop] ${attacker.name} strikes silently for +3 bonus damage!`, 'text-purple-400');
+            }
+
+            // 4. Check Secretarybird: Stomp (+5 bonus damage against Land-type)
+            if (attacker.id === 'secretarybird' && defender.type === 'Land') {
+                baseAtk += 5;
+                logCombat(`🦶 [Stomp] ${attacker.name} deals +5 bonus damage against Land-type ${defender.name}!`, 'text-yellow-400');
+            }
+
+            // 5. Check Philippine Eagle: Apex Talon (When HP < 25, +5 ATK)
+            if (attacker.id === 'philippine_eagle' && attacker.hp < 25) {
+                baseAtk += 5;
+                logCombat(`🦅 [Apex Talon] ${attacker.name}'s HP is critical! +5 Attack triggered!`, 'text-rose-400 font-bold');
+            }
+
+            // Compute net damage against defender's defense
+            let rawDamage = Math.max(1, baseAtk - Math.floor(defender.defense / 2));
+
+            // 6. Check Atlantic Puffin: Deep Dive (Reduces next enemy attack by 4)
+            if (defState.puffinDeepDiveActive) {
+                defState.puffinDeepDiveActive = false;
+                rawDamage = Math.max(1, rawDamage - 4);
+                logCombat(`🛡️ [Deep Dive] ${defender.name} shielded 4 damage!`, 'text-cyan-300');
+            }
+
+            // 7. Check African Penguin: Thick Plumage (Permanently takes 2 less damage, min 1)
+            if (defender.id === 'african_penguin') {
+                rawDamage = Math.max(1, rawDamage - 2);
+                logCombat(`🛡️ [Thick Plumage] ${defender.name}'s dense feathers reduce damage by 2.`, 'text-blue-300');
+            }
+
+            // Apply Damage
+            defender.hp = Math.max(0, defender.hp - rawDamage);
+            createFloatingDamage(`-${rawDamage}`, window.innerWidth / 2, window.innerHeight / 2, '#ef4444');
+            createFeatherBurst(window.innerWidth / 2, window.innerHeight / 2);
+
+            logCombat(`💥 ${atkOwner}'s ${attacker.name} strikes ${defOwner}'s ${defender.name} for ${rawDamage} damage!`, 'text-slate-200');
+
+            // Handle KO Switch
+            if (defender.hp <= 0) {
+                logCombat(`💀 ${defOwner}'s ${defender.name} was defeated!`, 'text-rose-500 font-bold');
+                if (defOwner === 'AI') {
+                    battleState.aiIndex++;
+                    if (battleState.aiIndex < battleState.aiTeam.length) {
+                        checkEntryAbilities(battleState.aiTeam[battleState.aiIndex], 'AI', battleState.aiStates);
+                    }
+                } else {
+                    battleState.playerIndex++;
+                    if (battleState.playerIndex < battleState.playerTeam.length) {
+                        checkEntryAbilities(battleState.playerTeam[battleState.playerIndex], 'Player', battleState.playerStates);
+                    }
+                }
+            }
+        }
+
+        function checkBattleEnd() {
+            if (battleState.playerIndex >= battleState.playerTeam.length) {
+                battleState.gameOver = true;
+                logCombat(`🏆 GAME OVER: Rival AI Wins the Battle!`, 'text-rose-500 font-bold text-base');
+                renderBattleArena();
+                return true;
+            }
+            if (battleState.aiIndex >= battleState.aiTeam.length) {
+                battleState.gameOver = true;
+                logCombat(`🎉 VICTORY! You defeated the Rival AI!`, 'text-amber-400 font-bold text-base');
+                renderBattleArena();
+                return true;
+            }
+            return false;
+        }
+
+        function resetBattle() {
+            AudioFX.playSwoosh();
+            battleState.gameOver = true;
+            initBattle();
+        }
+
+        function logCombat(msg, cssClass = '') {
+            const logBox = document.getElementById('battle-log');
+            const item = document.createElement('div');
+            item.className = cssClass;
+            item.innerHTML = msg;
+            logBox.appendChild(item);
+            logBox.scrollTop = logBox.scrollHeight;
+        }
+
+
+        window.onload = function() {
+            renderCodex();
+            renderBuilder();
+        };
+    </script>
+</body>
+</html>
