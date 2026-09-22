@@ -47,7 +47,15 @@
         },
 
         chord(notes, duration = 0.7, type = 'sine', gain = 0.06) {
-            notes.forEach((note, index) => this.tone(note, duration, type, gain, index * 0.015));
+            const validNotes = Array.isArray(notes)
+                ? notes.filter((note) => Number.isFinite(note) && note > 0)
+                : [];
+
+            if (!validNotes.length) return;
+
+            const spread = validNotes.length > 1 ? 0.018 : 0;
+            const perNoteGain = Math.max(0.02, gain / Math.max(1, validNotes.length * 0.9));
+            validNotes.forEach((note, index) => this.tone(note, duration, type, perNoteGain, index * spread));
         },
 
         startMusic() {
@@ -79,14 +87,20 @@
             bass.start(now);
             this.music = { pad, bass, padGain, bassGain, filter };
 
-            const progression = [220, 196, 174, 196];
+            const progression = [
+                [220, 330, 440],
+                [196, 294, 392],
+                [174, 261, 349],
+                [196, 293, 392]
+            ];
             let step = 0;
             this.music.timer = window.setInterval(() => {
                 if (!this.music || this.muted) return;
-                const root = progression[step++ % progression.length];
+                const chordNotes = progression[step++ % progression.length];
                 const t = this.ctx.currentTime;
-                pad.frequency.exponentialRampToValueAtTime(root, t + 1.2);
-                bass.frequency.exponentialRampToValueAtTime(root / 2, t + 1.2);
+                this.chord(chordNotes, 1.2, 'triangle', 0.024);
+                pad.frequency.exponentialRampToValueAtTime(chordNotes[0], t + 1.2);
+                bass.frequency.exponentialRampToValueAtTime(chordNotes[0] / 2, t + 1.2);
             }, 1200);
         },
 
